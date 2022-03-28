@@ -1,0 +1,81 @@
+ create database riri;
+ 
+ CREATE TABLE students (
+    std_id INT PRIMARY KEY,
+    name VARCHAR(10),
+    major VARCHAR(5)
+);
+
+DESCRIBE students;
+
+DROP TABLE students;
+
+ALTER TABLE students ADD gpa INT;
+
+ALTER TABLE students DROP COLUMN gpa;
+
+
+DROP TABLE students;
+
+
+CREATE TABLE students (
+    std_id INT PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    major VARCHAR(10) DEFAULT 'undecided'
+);
+
+CREATE TABLE students (
+    std_id INT AUTO_INCREMENT,
+    name VARCHAR(10) NOT NULL,
+    major VARCHAR(5) UNIQUE,
+    PRIMARY KEY(std_id)
+);
+
+SELECT * FROM students;
+
+INSERT INTO students(name, major) VALUES( "Rithu", "CS");
+INSERT INTO students(name, major) VALUES( "Deek", "IS");
+INSERT INTO students VALUES(5, "Deeksha", "Art");
+INSERT INTO students(std_id, name) VALUES(3, "Raksha");
+INSERT INTO students VALUES(4, "Daksha", "Com");
+
+
+SELECT * FROM students;
+
+
+UPDATE students
+SET name = 'Deek1'
+WHERE std_id = 4;
+
+UPDATE students
+SET MAJOR = 'blah', name = "Ri"
+WHERE MAJOR = 'Art' OR MAJOR = 'Com'; 
+
+
+DELETE FROM students; 
+
+DELETE FROM students
+WHERE std_id = 4;
+
+
+SELECT * FROM students;
+
+SELECT name, major
+FROM students
+ORDER BY major DESC;
+
+SELECT *
+FROM students
+ORDER BY std_id, name ASC
+LIMIT 2;
+
+
+SELECT name
+FROM students
+WHERE major = 'CS' OR major = 'Art';
+
+-- < > <= >= = <> AND OR
+
+SELECT *
+FROM students
+WHERE name IN ('Rithu', "Deek") AND std_id < 2;
