@@ -1,62 +1,34 @@
- create database riri;
- 
- CREATE TABLE students (
-    std_id INT PRIMARY KEY,
-    name VARCHAR(10),
-    major VARCHAR(5)
-);
-
-DESCRIBE students;
-
 DROP TABLE students;
 
-ALTER TABLE students ADD gpa INT;
-
-ALTER TABLE students DROP COLUMN gpa;
-
-
-DROP TABLE students;
-
-
-CREATE TABLE students (
-    std_id INT PRIMARY KEY,
-    name VARCHAR(10) NOT NULL,
-    major VARCHAR(10) DEFAULT 'undecided'
-);
 
 CREATE TABLE students (
     std_id INT AUTO_INCREMENT,
     name VARCHAR(10) NOT NULL,
-    major VARCHAR(5) UNIQUE,
+    sex VARCHAR(1),
+    score INT,
+    major VARCHAR(10) DEFAULT 'undecided',
     PRIMARY KEY(std_id)
 );
 
-SELECT * FROM students;
+INSERT INTO students VALUES(1, "Rithu", "F", 99, "CS");
+INSERT INTO students VALUES(2, "Deek", "F", 65, "Art");
+INSERT INTO students VALUES(3, "Daksha","F", 60, "Art");
+INSERT INTO students VALUES(4, "Chints","M", 50, "Com");
+INSERT INTO students VALUES(5, "Pill","M", 80, "Math");
 
-INSERT INTO students(name, major) VALUES( "Rithu", "CS");
-INSERT INTO students(name, major) VALUES( "Deek", "IS");
-INSERT INTO students VALUES(5, "Deeksha", "Art");
 INSERT INTO students(std_id, name) VALUES(3, "Raksha");
 INSERT INTO students VALUES(4, "Daksha", "Com");
 
-
-SELECT * FROM students;
-
+UPDATE students
+SET major = 'maths'
+WHERE major = 'Math';
 
 UPDATE students
-SET name = 'Deek1'
-WHERE std_id = 4;
-
-UPDATE students
-SET MAJOR = 'blah', name = "Ri"
-WHERE MAJOR = 'Art' OR MAJOR = 'Com'; 
-
-
-DELETE FROM students; 
+SET major = 'maths'
+WHERE std_id = 3;
 
 DELETE FROM students
-WHERE std_id = 4;
-
+WHERE std_id = 5;
 
 SELECT * FROM students;
 
@@ -64,18 +36,250 @@ SELECT name, major
 FROM students
 ORDER BY major DESC;
 
+#sort by student id and then name in ascending order, with only 2 enteries
 SELECT *
 FROM students
 ORDER BY std_id, name ASC
 LIMIT 2;
 
-
-SELECT name
+#major is CS or arts
+SELECT name as fullname
 FROM students
 WHERE major = 'CS' OR major = 'Art';
 
 -- < > <= >= = <> AND OR
 
+#name is either rithu or deek and std is less than 2
 SELECT *
 FROM students
 WHERE name IN ('Rithu', "Deek") AND std_id < 2;
+
+#Find all std_id
+SELECT DISTINCT std_id
+FROM students;
+
+
+#functions
+#count number of employees
+SELECT COUNT(std_id)
+FROM students;
+
+#find all above 2 std
+SELECT COUNT(std_id)
+FROM students
+Where std_id > 2;
+
+#use AVG for average; Eg: SELECT AVG(std_id)
+#use SUM for sum
+SELECT * FROM students;
+
+#find how many students are male or female
+SELECT COUNT(sex), sex
+FROM students
+Group by sex;
+
+
+DROP TABLE marks;
+
+#find total marks 
+CREATE TABLE marks (
+    std_id INT UNIQUE,
+    name VARCHAR(10) PRIMARY KEY,
+    mark INT NOT NUll
+);
+
+INSERT INTO marks VALUES(1, "bio", 99);
+INSERT INTO marks VALUES(2, "cs", 59);
+INSERT INTO marks VALUES(1, "math", 89);
+INSERT INTO marks VALUES(3, "civ", 39);
+INSERT INTO marks VALUES(4, "ind", 36);
+INSERT INTO marks VALUES(2, "geo", 90);
+INSERT INTO marks VALUES(3, "phy", 50);
+INSERT INTO marks(std_id, name, mark) VALUES(1, "dbms",100);
+
+ALTER TABLE marks ADD GPA DECIMAL(3,2);
+SELECT * FROM marks;
+ALTER TABLE marks DROP COLUMN GPA;
+
+#find total marks of each student
+SELECT SUM(mark), name
+FROM marks
+GROUP BY name;
+
+#wildcards
+# % -- means any number of chars  
+#select all whose major has to end with "rt" 
+SELECT *
+FROM students
+WHERE major LIKE '%rt';
+# %rt% rt anywhere
+
+# _ -- means one char for exact placement, like in name "i" should be in second character only
+SELECT *
+FROM students
+WHERE name LIKE '_i%';
+
+
+#Unions
+SELECT std_id
+FROM students
+UNION
+SELECT mark 
+FROM marks;
+
+#JOINS
+CREATE TABLE employee (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    sex VARCHAR(1),
+    salary INT
+);
+
+ALTER TABLE employee ADD branch_id INT;
+
+ALTER TABLE employee
+ADD FOREIGN KEY(branch_id)
+REFERENCES branch(branch_id)
+ON DELETE SET NULL;
+
+INSERT INTO employee VALUES(100, "David", "M", 25000, 1);
+INSERT INTO employee VALUES(101, "Micheal", "M", 20000, 2);
+INSERT INTO employee VALUES(102, "Jan", "F", 22000, 1);
+INSERT INTO employee VALUES(105, "kelly", "F", 5000, 2);
+INSERT INTO employee VALUES(103, "Josh", "M", 20000, 3);
+INSERT INTO employee VALUES(106, "Dwight", "M", 10000, 2);
+INSERT INTO employee VALUES(107, "Philis", "F", 90000, 2);
+
+DROP TABLE employee;
+DROP TABLE branch;
+SELECT * FROM employee;
+
+CREATE TABLE branch (
+    branch_id INT PRIMARY KEY,
+    branch_name VARCHAR(10) NOT NULL,
+    mgr_id INT,
+    FOREIGN KEY(mgr_id) REFERENCES employee(emp_id) ON DELETE SET NULL
+);
+
+INSERT INTO branch VALUES(1, "Corporate", 100);
+INSERT INTO branch VALUES(2, "Scranton", 101);
+INSERT INTO branch VALUES(3, "Standford", 103);
+INSERT INTO branch VALUES(4, "buffalo", NULL);
+
+SELECT * FROM branch;
+DESCRIBE branch;
+
+DROP TABLE branch;
+
+#Join -- Find all branches and their manager's name
+SELECT employee.emp_id, employee.name, branch.branch_name
+FROM employee
+JOIN branch
+ON employee.emp_id = branch.mgr_id;
+
+# Four types of JOIN
+# inner JOIn - shared column in common -- only in both
+# LEFT JOIN - all in left table will appear in final table
+SELECT employee.emp_id, employee.name, branch.branch_name
+FROM employee
+LEFT JOIN branch
+ON employee.emp_id = branch.mgr_id;
+
+#RIGHT JOIN - all in right table will appear in final table
+SELECT employee.emp_id, employee.name, branch.branch_name
+FROM employee
+RIGHT JOIN branch
+ON employee.emp_id = branch.mgr_id;
+
+#Full outter join - left and right combined. 
+
+
+#Nested queries 
+CREATE TABLE works_with (
+    emp_id INT PRIMARY KEY,
+    name VARCHAR(10) NOT NULL,
+    sex VARCHAR(1),
+    salary INT
+);
+
+#composite key and foreign key 
+CREATE TABLE works_with (
+    emp_id INT,
+    client_id INT,
+    total_sales INT,
+    PRIMARY KEY(emp_id,client_id)
+);
+
+INSERT INTO works_with VALUES(106, 300, 55000);
+INSERT INTO works_with VALUES(107, 560, 35000);
+INSERT INTO works_with VALUES(105, 290, 67000);
+
+SELECT * FROM works_with;
+
+
+#Nested queries 
+-- Find names of all employee who have
+-- sold over 50000 to a single client
+SELECT works_with.emp_id
+FROM works_with
+WHERE works_with.total_sales > 50000;
+
+SELECT employee.name, employee.emp_id
+FROM employee
+WHERE employee.emp_id IN (
+    SELECT works_with.emp_id
+    FROM works_with
+    WHERE works_with.total_sales > 50000
+);
+
+# Find all client 
+CREATE TABLE client (
+    client_id INT PRIMARY KEY,
+    client_name VARCHAR(10) NOT NULL,
+    branch_id INT,
+    FOREIGN KEY(branch_id) REFERENCES branch(branch_id) ON DELETE SET NULL
+);
+
+DESCRIBE client;
+INSERT INTO client VALUES(300, 'Staples', 2);
+INSERT INTO client VALUES(560, 'Metro', 2);
+INSERT INTO client VALUES(290, 'aid', 2);
+SELECT * FROM client;
+
+SELECT branch.branch_id
+FROM branch
+WHERE branch.mgr_id = 101;
+
+SELECT client.client_name
+FROM client
+WHERE client.branch_id = (
+    SELECT branch.branch_id
+    FROM branch
+    WHERE branch.mgr_id = 101
+);
+
+#On Delete
+#SET NULL - if foreign key gets deleted then those entries in that table will get set to NULL
+DELETE FROM employee 
+WHERE emp_id = 101;
+
+SELECT * FROM branch;
+
+#SET CASCADE -- if foreign key gets deleted then those entries in that table will get deleted
+CREATE TABLE supplier (
+    branch_id INT,
+    supply_name VARCHAR(40),
+    PRIMARY KEY(branch_id, supply_name),
+    FOREIGN KEY(branch_id) REFERENCES branch(branch_id) ON DELETE CASCADE
+);
+
+INSERT INTO supplier VALUES(2, 'Hugo');
+INSERT INTO supplier VALUES(3, 'elgo');
+INSERT INTO supplier VALUES(2, 'Texas');
+INSERT INTO supplier VALUES(2, 'Meta');
+
+SELECT * FROM supplier;
+
+DELETE FROM branch
+WHERE branch_id = 2;
+
